@@ -58,15 +58,6 @@ func connectDatabase(env string) *gorm.DB {
 	return db
 }
 
-type Task struct {
-	ID        string `gorm:"AUTO_INCREMENT"`
-	Title     string `json:"title"`
-	Note      string `json:"note"`
-	Completed int    `json:"completed"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
-}
-
 func ReadOnStruct(fileBuffer []byte) (env, error) {
 	var	data env
                
@@ -85,11 +76,7 @@ func main() {
 	e.Use(middleware.Recover())
 
 	db := connectDatabase("dev")
-	// `User`モデルのテーブルを作成します
-	db.CreateTable(&Task{})
-	// db.DropTable(&Task{})
 
-	
 	graphqlHandler := handler.NewDefaultServer(
 		generated.NewExecutableSchema(
 			generated.Config{Resolvers: &graph.Resolver{DB: db}},

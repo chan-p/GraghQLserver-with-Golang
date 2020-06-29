@@ -66,6 +66,7 @@ Go言語を利用してGraghQLについて学ぶ
    ```gcloud sql databases create hayashi-golang --instance=hayashi-golang```
  * データベース接続  
    ```gcloud sql connect hayashi-golang --user=postgres --quiet```
+   ```\c hayashi-golang;```
    → db/schema.dbのテーブルを作成    
  * データベース接続関数：connectDatabase()
  * GraphQLサーバーとするための初期化を実行
