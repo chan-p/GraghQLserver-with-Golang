@@ -8,3 +8,4 @@ CREATE TABLE tasks (
    PRIMARY KEY(id)
 );
 CREATE INDEX task_id on tasks (id);
+

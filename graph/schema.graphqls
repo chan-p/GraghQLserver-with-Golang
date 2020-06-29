@@ -1,5 +1,9 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
 type Task {
-  id: ID!
+  id: Int!
   title: String!
   note: String!
   completed: Int!
@@ -14,4 +18,8 @@ input NewTask {
 
 type Mutation {
   createTask(input: NewTask!): Task!
+}
+
+type Query {
+  tasks: [Task!]!
 }

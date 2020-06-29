@@ -5,10 +5,14 @@ import (
 	_ "net/http"
 	"fmt"
 
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/go-yaml/yaml"                          
-    "io/ioutil"
+	"github.com/go-yaml/yaml"
+	"github.com/yuuu/gqlgen-echo-sample/graph"
+	"github.com/yuuu/gqlgen-echo-sample/graph/generated"                          
+	"io/ioutil"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -41,20 +45,26 @@ func connectDatabase(env string) *gorm.DB {
 		panic(err.Error())                                                           
 	}  
 
-	DBMS     := config.Env.Dbms
-	USER     := config.Env.User
-	PASS     := config.Env.Password
-	HOST 	 := config.Env.Host
-	PORT	 := config.Env.Port
-	DBNAME   := config.Env.Dbname
-  
-	CONNECT := "host="+HOST+" port="+PORT+" user="+USER+" dbname="+DBNAME+" password="+PASS+" sslmode=disable"
-	db,err := gorm.Open(DBMS, CONNECT)
-  
+	db,err := gorm.Open(
+		config.Env.Dbms, 
+		fmt.Sprintf(
+			"host=%s user=%s password=%s port=%s dbname=%s sslmode=disable",
+			config.Env.Host, config.Env.User, config.Env.Password, config.Env.Port, config.Env.Dbname,
+		),
+	)
 	if err != nil {
 	  panic(err.Error())
 	}
 	return db
+}
+
+type Task struct {
+	ID        string `gorm:"AUTO_INCREMENT"`
+	Title     string `json:"title"`
+	Note      string `json:"note"`
+	Completed int    `json:"completed"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
 }
 
 func ReadOnStruct(fileBuffer []byte) (env, error) {
@@ -75,7 +85,27 @@ func main() {
 	e.Use(middleware.Recover())
 
 	db := connectDatabase("dev")
-	fmt.Println(db)
+	// `User`モデルのテーブルを作成します
+	db.CreateTable(&Task{})
+	// db.DropTable(&Task{})
+
+	
+	graphqlHandler := handler.NewDefaultServer(
+		generated.NewExecutableSchema(
+			generated.Config{Resolvers: &graph.Resolver{DB: db}},
+		),
+	)
+	playgroundHandler := playground.Handler("GraphQL", "/query")
+
+	e.POST("/query", func(c echo.Context) error {
+		graphqlHandler.ServeHTTP(c.Response(), c.Request())
+		return nil
+	})
+
+	e.GET("/playground", func(c echo.Context) error {
+		playgroundHandler.ServeHTTP(c.Response(), c.Request())
+		return nil
+	})
 
 	err := e.Start(":3000")
 	if err != nil {
