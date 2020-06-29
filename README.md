@@ -60,6 +60,19 @@ Go言語を利用してGraghQLについて学ぶ
  * https://github.com/golang/gomodule (Go言語のメインリポジトリに統合された)
 
  ## 実装
+ * パブリックIPでCloudSQLを立ち上げ  
+ → 承認済みネットワークに自宅IPを設定
+ * データベース作成  
+   ```gcloud sql databases create hayashi-golang --instance=hayashi-golang```
+ * データベース接続  
+   ```gcloud sql connect hayashi-golang --user=postgres --quiet```
+   → db/schema.dbのテーブルを作成    
+ * データベース接続関数：connectDatabase()
+ * GraphQLサーバーとするための初期化を実行
+    ```gqlgen init```
+    → ```server.go```と```gragh```が作成される
+ * GraphQLスキーマ(graph/schema.graphqls)はサンプルであるため、修正してソースコードを再生成
+    ```rm graph/schema.resolvers.go``` → ```gqlgen```
 
 # 歴史
 ## Webの黎明期
@@ -77,4 +90,6 @@ Go言語を利用してGraghQLについて学ぶ
 # 参考
 * https://qiita.com/SiragumoHuin/items/cc58f456bc43a1be41b4
 * https://rightcode.co.jp/blog/information-technology/graphql-alternative-rest-api
-* https://employment.en-japan.com/engineerhub/entry/2018/12/26/103000
+* https://employment.en-japan.com/engineerhub/entry/2018/12/26/
+* https://tech.opst.co.jp/2019/07/09/go-modules%E3%82%82%E8%A7%A6%E3%82%8C%E3%81%A6%E3%81%BF%E3%82%8Bgo%E5%85%A5%E9%96%80/
+ * GOPATHやGO MODULESについて整理されてる
